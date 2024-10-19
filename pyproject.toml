@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "ekuru_finance_rag"
+
+packages = [
+    { include = "main" },
+]
+
+version = "0.1.0"
+description = "A RAG system specifically built for Finance documents ( 10 K reports and earnings reports ) ."
+authors = ["Emre Kuru <emre.kuru@ozu.edu.tr>"]
+license = "Apache 2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">= 3.9.0, < 4.0.0"
+
+
+[tool.poetry.group.dev.dependencies]
+poetry = "^1.7.0"
+pytest = "^8.1.0"
+coverage = "^7.4.0"
+
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+ignore_missing_imports = true
