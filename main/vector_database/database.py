@@ -90,7 +90,7 @@ class VectorDatabase:
             self.pc.create_index(
                 name=index_name,
                 dimension=dimension,
-                metric='euclidean',
+                metric='dotproduct',
                 spec=ServerlessSpec(
                     cloud=cloud,
                     region=region

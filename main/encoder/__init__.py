@@ -1,3 +1,3 @@
-from .encoder import Encoder, BiEncoder
+from .encoder import Encoder, BiEncoder, CrossEncoder
 
-__all__ = [ Encoder, BiEncoder ]
+__all__ = [ Encoder, BiEncoder, CrossEncoder]
