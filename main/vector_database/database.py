@@ -1,14 +1,16 @@
 import pinecone
+from pinecone import Pinecone, ServerlessSpec
 
 class VectorDBHandler:
-    def __init__(self, index_name: str):
+    def __init__(self, index_name: str, pinecone_instance: Pinecone):
         """
         Initializes the handler to connect with the Pinecone index.
         
         Args:
         - index_name (str): The name of the Pinecone index to interact with.
+        - pinecone_instance (Pinecone): The initialized Pinecone instance.
         """
-        self.index = pinecone.Index(index_name)
+        self.index = pinecone_instance.Index(index_name)
     
     def upsert_vector(self, vector_id: str, embedding: list):
         """
@@ -25,13 +27,14 @@ class VectorDBHandler:
         Queries the Pinecone index for the most similar vectors to the query embedding.
         
         Args:
-        - query_embedding (list): The embedding to query for.
+        - query_embedding (list): The embedding to query for (should be a 1D list of floats).
         - top_k (int): Number of top results to retrieve.
         
         Returns:
         - List of dictionaries containing the IDs and scores of the top results.
         """
-        return self.index.query(queries=[query_embedding], top_k=top_k)['matches']
+        # Query the Pinecone index with a single query embedding
+        return self.index.query(vector=query_embedding, top_k=top_k)['matches']
     
     def delete_vector(self, vector_id: str):
         """
@@ -54,29 +57,43 @@ class VectorDBHandler:
         """
         return self.index.fetch(ids=[vector_id])
 
+    def delete_all(self):
+        """
+        Deletes all vectors from the Pinecone index.
+        """
+        self.index.delete(delete_all=True)
 
 class VectorDatabase:
-    def __init__(self, api_key: str, environment: str):
+    def __init__(self, api_key: str):
         """
         Initializes Pinecone client.
         
         Args:
         - api_key (str): Pinecone API key.
-        - environment (str): Pinecone environment (e.g., 'us-west1-gcp').
         """
-        pinecone.init(api_key=api_key, environment=environment)
+        self.pc = Pinecone(api_key=api_key)
     
-    def start_db(self, index_name: str, dimension: int):
+    def start_db(self, index_name: str, dimension: int, cloud: str, region: str):
         """
         Starts a Pinecone index (vector database) if it doesn't exist and returns a handler object.
         
         Args:
         - index_name (str): Name of the index to create or connect to.
         - dimension (int): Dimensionality of the vectors to store.
+        - cloud (str): Cloud provider (e.g., 'aws').
+        - region (str): Cloud region (e.g., 'us-west-1').
         
         Returns:
         - VectorDBHandler: An object that handles read/write operations for the index.
         """
-        if index_name not in pinecone.list_indexes():
-            pinecone.create_index(index_name, dimension=dimension)
-        return VectorDBHandler(index_name)
+        if index_name not in self.pc.list_indexes().names():
+            self.pc.create_index(
+                name=index_name,
+                dimension=dimension,
+                metric='euclidean',
+                spec=ServerlessSpec(
+                    cloud=cloud,
+                    region=region
+                )
+            )
+        return VectorDBHandler(index_name, self.pc)

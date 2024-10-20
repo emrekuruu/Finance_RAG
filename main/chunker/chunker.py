@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import re 
 
 class Chunker(ABC):
     """
@@ -18,3 +19,10 @@ class Chunker(ABC):
         - List of document chunks.
         """
         pass
+
+
+class SimpleSentenceChunker(Chunker):    
+    def chunk_document(self, document: str):
+        # Regex to split sentences on punctuation (.!?), but keep the punctuation
+        chunks = re.split(r'(?<=[.!?])\s+', document.strip())
+        return chunks
