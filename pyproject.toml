@@ -23,6 +23,8 @@ langchain = "^0.3.4"
 chromadb = "^0.5.15"
 langchain-community = "^0.3.3"
 sentence-transformers = "^3.2.0"
+ragas = "^0.2.1"
+nltk = "^3.9.1"
 
 [tool.poetry.group.dev.dependencies]
 poetry = "^1.7.0"
